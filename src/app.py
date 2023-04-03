@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, People, Planet, Vehicle
 #from models import Person
 
 app = Flask(__name__)
@@ -38,12 +38,82 @@ def sitemap():
 
 @app.route('/user', methods=['GET'])
 def handle_hello():
+    users = User.query.all() #(devuelve el diccionario)
+    users = list(map(lambda item: item.serialize(),users))
+    print(users)
+   # response_body = {
+  #    "msg": "Hello, this is your GET /user response "
+  #  }
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
+#    return jsonify(response_body), 200
+    return jsonify(users), 200
 
-    return jsonify(response_body), 200
+@app.route('/register', methods=['POST'])
+def register_user():
+    #recibir el body en json y almacenarlo en la variable body
+    body = request.get_json() #requet.json() pero hay que importar request.json
+    
+    #ordenar cada uno de los campos recibidos
+    email = body["email"]
+    name = body["name"]
+    password = body["password"]
+    is_active = body["is_active"]
+    
+    #validaciones
+    if body is None:
+        raise APIException("You neeed to specify the request body as json object", status_code=400)
+    
+    new_user = User(email=email, name=name, password=password, is_active=is_active)
+    
+    #comitear la sesion
+    db.session.add(new_user) #agregamos el nuevo usuario a la base de datos
+    db.session.commit() #agregamos los cambios en la base de datos
+
+    return jsonify({"mensaje":"Usuario creado correctamente"}), 201
+
+@app.route('/user/<int:id>', methods=['GET'])
+def get_specific_user(id):
+    user = User.query.get(id) 
+    #users = list(map(lambda item: item.serialize(),users))   
+    return jsonify(user.serialize()), 200
+
+@app.route('/get-user', methods=['POST'])
+def get_specific_user2():
+    body = request.get_json()
+    id = body["id"]
+
+    user = User.query.get(id) 
+
+    #users = list(map(lambda item: item.serialize(),users))
+    print(user)
+    return jsonify(user.serialize()), 200
+
+
+@app.route('/get-user', methods=['DELETE'])
+def delete_specific_user():
+    body = request.get_json()   
+    id = body["id"]
+
+    user = User.query.get(id) 
+
+    db.session.delete(user)
+    db.session.commit()  
+  
+    return jsonify("Usuario borrado"), 200
+
+
+@app.route('/get-user', methods=['PUT'])
+def edit_user():
+    body = request.get_json()   
+    id = body["id"]
+    name = body["name"]
+
+    user = User.query.get(id)   
+    user.name = name #modifique el nombre del usuario
+
+    db.session.commit()
+  
+    return jsonify(user.serialize()), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
