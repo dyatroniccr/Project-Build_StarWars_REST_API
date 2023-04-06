@@ -10,12 +10,13 @@ class User(db.Model):
     name = db.Column(db.String(120), unique=False, nullable=False)
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r>' % self.name
 
     def serialize(self):
         return {
             "id": self.id,
             "email": self.email,
+            "name": self.name
             # do not serialize the password, its a security breach
         }
 
@@ -35,7 +36,16 @@ class People(db.Model):
     def serialize(self):
         return {
             "id": self.id,        
-            "name": self.name
+            "name": self.name,
+            "height": self.height,
+            "mass": self.mass,
+            "hair_color": self.hair_color,
+            "skin_color": self.skin_color,
+            "gender": self.gender,
+            "eye_color": self.eye_color,
+            "birth_year": self.birth_year,
+            "homeworld": self.homeworld,
+            "url": self.url
             # do not serialize the password, its a security breach
         }
 
@@ -55,7 +65,8 @@ class Planet(db.Model):
     def serialize(self):
         return {
             "id": self.id,        
-            "name": self.name
+            "name": self.name,
+            "url": self.url
             # do not serialize the password, its a security breach
         }
 class Vehicle(db.Model):
@@ -78,6 +89,10 @@ class Vehicle(db.Model):
     def serialize(self):
         return {
             "id": self.id,        
-            "name": self.name
+            "name": self.name,
+            "model": self.model,
+            "starship_class": self.starship_class,
+            "pilots": self.pilots,
+            "url": self.url
             # do not serialize the password, its a security breach
         }
