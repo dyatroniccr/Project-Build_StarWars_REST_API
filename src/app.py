@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, People, Planet, Vehicle
+from models import db, User, People, Planet, Vehicle, FavoritePeople, FavoritePlanet, FavoriteVehicle
 #from models import Person
 
 app = Flask(__name__)
@@ -114,6 +114,185 @@ def edit_user():
     db.session.commit()
   
     return jsonify(user.serialize()), 200
+
+@app.route('/add-favorite/people', methods=['POST'])
+def add_favorite_people():
+    body = request.get_json()
+    user_id = body["user_id"]
+    people_id = body["people_id"]
+
+    character = People.query.get(people_id)
+    if not character:
+        raise APIException('Personaje no encontrado', status_code=404)
+    
+    user = User.query.get(user_id)
+    if not user:
+        raise APIException('Usuario no encontrado', status_code=404)
+    
+    fav_exit = FavoritePeople.query.filter_by(user_id = user.id, people_id = character.id).first() is not None
+
+    if fav_exit:
+        raise APIException('El usuario ya lo tiene agregado a favoritos', status_code=404)
+    
+    favorite_people = FavoritePeople(user_id=user.id, people_id=character.id)
+    db.session.add(favorite_people)
+    db.session.commit()
+
+    return jsonify(favorite_people.serialize()), 200
+
+@app.route('/add-favorite/planet', methods=['POST'])
+def add_favorite_planet():
+    body = request.get_json()
+    user_id = body["user_id"]
+    planet_id = body["planet_id"]
+
+    planet = Planet.query.get(planet_id)
+    if not planet:
+        raise APIException('Planeta no encontrado', status_code=404)
+    
+    user = User.query.get(user_id)
+    if not user:
+        raise APIException('Usuario no encontrado', status_code=404)
+    
+    fav_exit = FavoritePlanet.query.filter_by(user_id = user.id, planet_id = planet.id).first() is not None
+
+    if fav_exit:
+        raise APIException('El usuario ya lo tiene agregado a favoritos', status_code=404)
+    
+    favorite_planet = FavoritePlanet(user_id=user.id, planet_id=planet.id)
+    db.session.add(favorite_planet)
+    db.session.commit()
+
+    return jsonify(favorite_planet.serialize()), 200
+
+
+@app.route('/add-favorite/vehicle', methods=['POST'])
+def add_favorite_vehicle():
+    body = request.get_json()
+    user_id = body["user_id"]
+    vehicle_id = body["vehicle_id"]
+
+    vehicle = Vehicle.query.get(vehicle_id)
+    if not vehicle:
+        raise APIException('Vehiculo no encontrado', status_code=404)
+    
+    user = User.query.get(user_id)
+    if not user:
+        raise APIException('Usuario no encontrado', status_code=404)
+    
+    fav_exit = FavoriteVehicle.query.filter_by(user_id = user.id, vehicle_id = vehicle.id).first() is not None
+
+    if fav_exit:
+        raise APIException('El usuario ya lo tiene agregado a favoritos', status_code=404)
+    
+    favorite_vehicle = FavoriteVehicle(user_id=user.id, vehicle_id = vehicle.id)
+    db.session.add(favorite_vehicle)
+    db.session.commit()
+
+    return jsonify(favorite_vehicle.serialize()), 200
+
+@app.route('/add-people', methods=['POST'])
+def add_people():
+    #recibir el body en json y almacenarlo en la variable body
+    body = request.get_json() #requet.json() pero hay que importar request.json
+    
+    #ordenar cada uno de los campos recibidos
+    height = body["height"]
+    mass = body["mass"]
+    hair_color = body["hair_color"]
+    skin_color = body["skin_color"]            
+    eye_color = body["eye_color"]
+    birth_year = body["birth_year"]
+    gender = body["gender"]
+    name = body["name"]
+    homeworld = body["homeworld"]
+    url = body["url"]    
+    
+    #validaciones
+    if body is None:
+        raise APIException("You neeed to specify the request body as json object", status_code=400)
+    
+    new_people = People(height=height, mass=mass, hair_color=hair_color, skin_color=skin_color, eye_color=eye_color, birth_year=birth_year, gender=gender, name=name, homeworld=homeworld, url=url)
+    
+    #comitear la sesion
+    db.session.add(new_people) #agregamos el nuevo personaje a la base de datos
+    db.session.commit() #agregamos los cambios en la base de datos
+
+    return jsonify({"mensaje":"Personaje creado correctamente"}), 201
+
+@app.route('/get-people', methods=['POST'])
+def get_specific_people():
+    body = request.get_json()
+    id = body["id"]
+
+    people = People.query.get(id) 
+
+    #users = list(map(lambda item: item.serialize(),users))
+    print(people)
+    return jsonify(people.serialize()), 200
+
+@app.route('/add-planet', methods=['POST'])
+def add_planet():
+    #recibir el body en json y almacenarlo en la variable body
+    body = request.get_json() #requet.json() pero hay que importar request.json
+    
+    #ordenar cada uno de los campos recibidos
+    diameter = body["diameter"]
+    rotation_period = body["rotation_period"]
+    orbital_period = body["orbital_period"]
+    gravity = body["gravity"]
+    population = body["population"]
+    climate = body["climate"]
+    terrain = body["terrain"]
+    surface_water = body["surface_water"]
+    name = body["name"]
+    url = body["url"]
+    
+    #validaciones
+    if body is None:
+        raise APIException("You neeed to specify the request body as json object", status_code=400)
+    
+    new_planet = Planet(diameter=diameter, rotation_period=rotation_period, orbital_period=orbital_period, gravity=gravity, population=population, climate=climate, terrain=terrain, surface_water=surface_water, name=name, url=url)
+    
+    #comitear la sesion
+    db.session.add(new_planet) #agregamos el nuevo usuario a la base de datos
+    db.session.commit() #agregamos los cambios en la base de datos
+
+    return jsonify({"mensaje":"Planeta creado correctamente"}), 201
+
+@app.route('/add-vehicle', methods=['POST'])
+def add_vehicle():
+    #recibir el body en json y almacenarlo en la variable body
+    body = request.get_json() #requet.json() pero hay que importar request.json
+    
+    #ordenar cada uno de los campos recibidos
+    model = body["model"]
+    starship_class = body["starship_class"]
+    manufacturer = body["manufacturer"]
+    cost_in_credits = body["cost_in_credits"]
+    length = body["length"]
+    crew = body["crew"]
+    passengers = body["passengers"]
+    max_atmosphering_speed = body["max_atmosphering_speed"]
+    hyperdrive_rating = body["hyperdrive_rating"]
+    mglt = body["mglt"]
+    cargo_capacity = body["cargo_capacity"]
+    consumables = body["consumables"]
+    pilots = body["pilots"]
+    name = body["name"]
+    url = body["url"]
+    
+    #validaciones
+    if body is None:
+        raise APIException("You neeed to specify the request body as json object", status_code=400)
+    
+    new_vehicle = Vehicle(model=model, starship_class=starship_class, manufacturer=manufacturer, cost_in_credits=cost_in_credits, length=length, crew=crew, passengers=passengers, max_atmosphering_speed=max_atmosphering_speed, hyperdrive_rating=hyperdrive_rating, mglt=mglt, cargo_capacity=cargo_capacity, consumables=consumables, pilots=pilots, name=name, url=url)
+    
+    #comitear la sesion
+    db.session.add(new_vehicle) #agregamos el nuevo vehiculo a la base de datos
+    db.session.commit() #agregamos los cambios en la base de datos
+
+    return jsonify({"mensaje":"Vehicle creado correctamente"}), 201
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
