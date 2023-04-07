@@ -231,10 +231,34 @@ def get_specific_people():
     print(people)
     return jsonify(people.serialize()), 200
 
+@app.route('/edit-people', methods=['PUT'])
+def edit_people():
+    body = request.get_json()   
+    id = body["id"]
+    name = body["name"]
+
+    planet = Planet.query.get(id)   
+    planet.name = name 
+
+    db.session.commit()
+  
+    return jsonify(planet.serialize()), 200
+
+@app.route('/delete-people', methods=['DELETE'])
+def delete_specific_people():
+    body = request.get_json()   
+    id = body["id"]
+
+    people = People.query.get(id) 
+
+    db.session.delete(people)
+    db.session.commit()  
+  
+    return jsonify("Character borrado"), 200
+
 @app.route('/add-planet', methods=['POST'])
 def add_planet():
-    #recibir el body en json y almacenarlo en la variable body
-    body = request.get_json() #requet.json() pero hay que importar request.json
+    body = request.get_json() 
     
     #ordenar cada uno de los campos recibidos
     diameter = body["diameter"]
@@ -260,11 +284,46 @@ def add_planet():
 
     return jsonify({"mensaje":"Planeta creado correctamente"}), 201
 
+@app.route('/get-planet', methods=['POST'])
+def get_specific_planet():
+    body = request.get_json()
+    id = body["id"]
+
+    planet = Planet.query.get(id) 
+
+    print(planet)
+    return jsonify(planet.serialize()), 200
+
+@app.route('/edit-planet', methods=['PUT'])
+def edit_planet():
+    body = request.get_json()   
+    id = body["id"]
+    name = body["name"]
+
+    planet = Planet.query.get(id)   
+    planet.name = name 
+
+    db.session.commit()
+  
+    return jsonify(planet.serialize()), 200
+
+
+@app.route('/delete-planet', methods=['DELETE'])
+def delete_specific_planet():
+    body = request.get_json()   
+    id = body["id"]
+
+    planet = Planet.query.get(id) 
+
+    db.session.delete(planet)
+    db.session.commit()  
+  
+    return jsonify("Planeta borrado"), 200
+
 @app.route('/add-vehicle', methods=['POST'])
 def add_vehicle():
-    #recibir el body en json y almacenarlo en la variable body
-    body = request.get_json() #requet.json() pero hay que importar request.json
-    
+    body = request.get_json() 
+
     #ordenar cada uno de los campos recibidos
     model = body["model"]
     starship_class = body["starship_class"]
@@ -293,6 +352,41 @@ def add_vehicle():
     db.session.commit() #agregamos los cambios en la base de datos
 
     return jsonify({"mensaje":"Vehicle creado correctamente"}), 201
+
+@app.route('/get-vehicle', methods=['POST'])
+def get_specific_vehicle():
+    body = request.get_json()
+    id = body["id"]
+
+    vehicle = Vehicle.query.get(id) 
+
+    print(vehicle)
+    return jsonify(vehicle.serialize()), 200
+
+@app.route('/edit-vehicle', methods=['PUT'])
+def edit_vehicle():
+    body = request.get_json()   
+    id = body["id"]
+    name = body["name"]
+
+    vehicle = Vehicle.query.get(id)   
+    vehicle.name = name 
+
+    db.session.commit()
+  
+    return jsonify(vehicle.serialize()), 200
+
+@app.route('/delete-vehicle', methods=['DELETE'])
+def delete_specific_vehicle():
+    body = request.get_json()   
+    id = body["id"]
+
+    vehicle = Vehicle.query.get(id) 
+
+    db.session.delete(vehicle)
+    db.session.commit()  
+  
+    return jsonify("Vehiculo borrado"), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
