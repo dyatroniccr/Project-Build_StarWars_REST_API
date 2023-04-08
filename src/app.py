@@ -388,6 +388,30 @@ def delete_specific_vehicle():
   
     return jsonify("Vehiculo borrado"), 200
 
+@app.route('/favorites', methods=['POST'])
+def list_favorites():
+    body = request.get_json()
+    user_id = body["user_id"]
+    if not user_id:
+        raise APIException('Faltan datos', status_code=404)
+
+    user = User.query.get(user_id)
+    if not user:
+        raise APIException('Usuario no encontrado', status_code=404)
+    
+    user_favorites_people = FavoritePeople.query.filter_by(user_id=user_id).all()
+    user_favorites_final_people = list(map(lambda item: item.serialize(), user_favorites_people))
+
+    user_favorites_planets = FavoritePlanet.query.filter_by(user_id=user_id).all()
+    user_favorites_final_planets = list(map(lambda item: item.serialize(), user_favorites_planets))
+
+    user_favorites_vehiles = FavoriteVehicle.query.filter_by(user_id=user_id).all()
+    user_favorites_final_vehicles = list(map(lambda item: item.serialize(), user_favorites_vehicles))
+
+    user_favorites_final = user_favorites_final_people + user_favorites_final_planets + user_favorites_final_vehicles
+
+    return jsonify(user_favorites_final), 200
+
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))

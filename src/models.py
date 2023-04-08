@@ -139,7 +139,11 @@ class FavoritePeople(db.Model):
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "people_id": self.people_id
+            "people_id": self.people_id,
+            "people_name": People.query.get(self.people_id).serialize()["name"],
+            "user_name": User.query.get(self.user_id).serialize()["name"],
+            "user": User.query.get(self.user_id).serialize(),
+            "people": People.query.get(self.people_id).serialize()
         }
 
 class FavoritePlanet(db.Model):
@@ -151,7 +155,11 @@ class FavoritePlanet(db.Model):
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "planet_id": self.planet_id
+            "planet_id": self.planet_id,
+            "planet_name": People.query.get(self.planet_id).serialize()["name"],
+            "user_name": User.query.get(self.user_id).serialize()["name"],
+            "user": User.query.get(self.user_id).serialize(),
+            "planet": People.query.get(self.planet_id).serialize()
         }
 
 class FavoriteVehicle(db.Model):
@@ -163,5 +171,9 @@ class FavoriteVehicle(db.Model):
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "vehicle_id": self.vehicle_id
+            "vehicle_id": self.vehicle_id,
+            "vehicle_name": Vehicle.query.get(self.vehicle_id).serialize()["name"],
+            "user_name": User.query.get(self.user_id).serialize()["name"],
+            "user": User.query.get(self.user_id).serialize(),
+            "vehicle": Vehicle.query.get(self.vehicle_id).serialize()
         }
