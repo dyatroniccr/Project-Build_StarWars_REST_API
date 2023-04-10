@@ -406,8 +406,7 @@ def list_favorites():
     user_favorites_final_planets = list(map(lambda item: item.serialize(), user_favorites_planets))
 
     user_favorites_vehiles = FavoriteVehicle.query.filter_by(user_id=user_id).all()
-    print(user_favorites_vehiles)
-    user_favorites_final_vehicles = list(map(lambda item: item.serialize(), user_favorites_vehicles))
+    user_favorites_final_vehicles = list(map(lambda item: item.serialize(), user_favorites_vehiles))
 
     user_favorites_final = user_favorites_final_people + user_favorites_final_planets + user_favorites_final_vehicles
 
