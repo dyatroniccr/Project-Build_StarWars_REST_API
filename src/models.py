@@ -156,10 +156,10 @@ class FavoritePlanet(db.Model):
             "id": self.id,
             "user_id": self.user_id,
             "planet_id": self.planet_id,
-            "planet_name": People.query.get(self.planet_id).serialize()["name"],
+            "planet_name": Planet.query.get(self.planet_id).serialize()["name"],
             "user_name": User.query.get(self.user_id).serialize()["name"],
             "user": User.query.get(self.user_id).serialize(),
-            "planet": People.query.get(self.planet_id).serialize()
+            "planet": Planet.query.get(self.planet_id).serialize()
         }
 
 class FavoriteVehicle(db.Model):
