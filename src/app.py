@@ -11,6 +11,16 @@ from admin import setup_admin
 from models import db, User, People, Planet, Vehicle, FavoritePeople, FavoritePlanet, FavoriteVehicle
 #from models import Person
 
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt_identity, get_jwt
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager
+
+from datetime import date, time, datetime, timezone, timedelta
+
+from flask_bcrypt import Bcrypt #librería para encriptaciones
+
+
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
@@ -411,6 +421,60 @@ def list_favorites():
     user_favorites_final = user_favorites_final_people + user_favorites_final_planets + user_favorites_final_vehicles
 
     return jsonify(user_favorites_final), 200
+
+@app.route('/login', methods=['POST'])
+def login():
+    email=request.get_json()["email"]
+    password = request.get_json()["password"]
+
+    user = User.query.filter_by(email=email).first()
+
+    if user is None:
+        return jsonify({"message":"Login failed"}), 401
+    
+    """ if password != user.password:
+        return jsonify({"message":"Login failed"}), 401 """
+
+    #validar el password encriptado
+    if not bcrypt.check_password_hash(user.password, password):
+        return jsonify({"message":"Login failed"}), 401
+    
+    access_token = create_access_token(identity=user.id)
+    return jsonify({"token":access_token}), 200
+
+@app.route("/protected", methods=["GET"])
+@jwt_required()
+def protected():
+    # Access the identity of the current user with get_jwt_identity
+    current_user = get_jwt_identity()
+    user = User.query.get(current_user)
+
+    token = verificacionToken(get_jwt()["jti"]) #reuso la función de verificacion de token
+    print(token)
+    if token:
+       raise APIException('Token está en lista negra', status_code=404)
+
+    print("EL usuario es: ", user.name)
+    return jsonify({"message":"Estás en una ruta protegida", "name":user.name}), 200
+
+#@app.route("/logout", methods=["POST"])
+@app.route("/logout", methods=["GET"])
+@jwt_required()
+def logout():
+    jti = get_jwt()["jti"] #Identificador del JWT (es más corto)
+    now = datetime.now(timezone.utc) 
+
+    #identificamos al usuario
+    current_user = get_jwt_identity()
+    user = User.query.get(current_user)
+
+    tokenBlocked = TokenBlockedList(token=jti , created_at=now, email=user.email)
+    db.session.add(tokenBlocked)
+    db.session.commit()
+
+    return jsonify({"message":"logout successfully"})
+
+
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
