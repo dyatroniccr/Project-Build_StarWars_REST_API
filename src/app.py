@@ -23,6 +23,12 @@ from flask_bcrypt import Bcrypt #librería para encriptaciones
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
+#inicio de instancia de JWT
+app.config["JWT_SECRET_KEY"] = os.getenv("FLASK_APP_KEY")  # Change this!
+jwt = JWTManager(app)
+
+bcrypt = Bcrypt(app) #inicio mi instancia de Bcrypt
+
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://")
