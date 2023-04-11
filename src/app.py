@@ -20,7 +20,6 @@ from datetime import date, time, datetime, timezone, timedelta
 
 from flask_bcrypt import Bcrypt #librería para encriptaciones
 
-
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 

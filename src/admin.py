@@ -1,7 +1,6 @@
 import os
 from flask_admin import Admin
-from models import db, User, People, Planet, Vehicle, FavoritePeople, FavoritePlanet, FavoriteVehicle
-from models import TokenBlockedList
+from models import db, User, People, Planet, Vehicle, FavoritePeople, FavoritePlanet, FavoriteVehicle, TokenBlockedList
 from flask_admin.contrib.sqla import ModelView
 
 def setup_admin(app):
