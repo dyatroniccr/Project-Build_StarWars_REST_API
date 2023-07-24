@@ -18,7 +18,7 @@ flask-cors = "*"
 gunicorn = "*"
 mysqlclient = "*"
 flask-admin = "*"
-flask-jwt-extended = "*"
+flask-jwt-extended = "4.4.0"
 flask-bcrypt = "*"
 
 [requires]
