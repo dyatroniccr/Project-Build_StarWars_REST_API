@@ -16,7 +16,7 @@ from flask_jwt_extended import get_jwt_identity, get_jwt
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 
-from datetime import date, time, datetime, timezone, timedelta
+from datetime import date, time, datetime, timezone, timedelta #restas de fechas(timedelta)
 
 from flask_bcrypt import Bcrypt #librería para encriptaciones
 
@@ -50,6 +50,17 @@ def handle_invalid_usage(error):
 @app.route('/')
 def sitemap():
     return generate_sitemap(app)
+
+
+def verificacionToken(identity):
+     
+    print("jti", identity)
+    token = TokenBlockedList.query.filter_by(token - identity).first()
+
+    if token is None:
+        return False
+    
+    return True
 
 @app.route('/user', methods=['GET'])
 def handle_hello():
@@ -452,6 +463,7 @@ def login():
     access_token = create_access_token(identity=user.id)
     return jsonify({"token":access_token}), 200
 
+
 #Colocamos el Decorador de Proteccion
 @app.route("/protected", methods=["GET"])
 @jwt_required()
@@ -460,19 +472,22 @@ def protected():
     current_user = get_jwt_identity()
     user = User.query.get(current_user)
 
-   # token = verificacionToken(get_jwt()["jti"]) #reuso la función de verificacion de token
-    #print(token)
-    #if token:
-   #    raise APIException('Token está en lista negra', status_code=404)
+    jti = get_jwt()["jti"] #Identificador del JWT (es más corto) 
+    token = TokenBlockedList.query.filter_by(token-jti).first() #reuso la función de verificacion de token"""
+    #token_P = verificacionToken(get_jwt()["jti"])
+    print(token)
+    
+    if token:
+       raise APIException('Token está en lista negra', status_code=404)
 
     print("EL usuario es: ", user.name)
     return jsonify({"message":"Estás en una ruta protegida", "name":user.name}), 200
 
-#@app.route("/logout", methods=["POST"])
-@app.route("/logout", methods=["GET"])
+@app.route("/logout", methods=["POST"])
+#@app.route("/logout", methods=["GET"])
 @jwt_required()
 def logout():
-    jti = get_jwt()["jti"] #Identificador del JWT (es más corto)
+    jti = get_jwt()["jti"] #Identificador del JWT (es más corto) - Extrae un diccionario
     now = datetime.now(timezone.utc) 
 
     #identificamos al usuario
