@@ -27,7 +27,7 @@ app.url_map.strict_slashes = False
 app.config["JWT_SECRET_KEY"] = os.getenv("FLASK_APP_KEY")  # Change this!
 jwt = JWTManager(app)
 
-bcrypt = Bcrypt(app) #inicio mi instancia de Bcrypt
+bcrypt = Bcrypt(app) #inicio mi instancia de Bcrypt OJO
 
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
@@ -78,7 +78,12 @@ def register_user():
     if body is None:
         raise APIException("You neeed to specify the request body as json object", status_code=400)
     
-    new_user = User(email=email, name=name, password=password, is_active=is_active)
+    #Antes de enviar la informacion a la base de datos debemos encryptar el password
+    password_encrypted = bcrypt.generate_password_hash(password, 10).decode('utf-8')
+    
+    #Crea la clase User en la variable new_user para enviar a la base
+    #de Datos
+    new_user = User(email=email, name=name, password=password_encrypted, is_active=is_active)
     
     #comitear la sesion
     db.session.add(new_user) #agregamos el nuevo usuario a la base de datos
@@ -437,8 +442,8 @@ def login():
     if user is None:
         return jsonify({"message":"Login failed"}), 401
     
-    """ if password != user.password:
-        return jsonify({"message":"Login failed"}), 401 """
+    """if password != user.password:
+        return jsonify({"message":"Login failed"}), 401"""
 
     #validar el password encriptado
     if not bcrypt.check_password_hash(user.password, password):
@@ -447,6 +452,7 @@ def login():
     access_token = create_access_token(identity=user.id)
     return jsonify({"token":access_token}), 200
 
+#Colocamos el Decorador de Proteccion
 @app.route("/protected", methods=["GET"])
 @jwt_required()
 def protected():
@@ -454,10 +460,10 @@ def protected():
     current_user = get_jwt_identity()
     user = User.query.get(current_user)
 
-    token = verificacionToken(get_jwt()["jti"]) #reuso la función de verificacion de token
-    print(token)
-    if token:
-       raise APIException('Token está en lista negra', status_code=404)
+   # token = verificacionToken(get_jwt()["jti"]) #reuso la función de verificacion de token
+    #print(token)
+    #if token:
+   #    raise APIException('Token está en lista negra', status_code=404)
 
     print("EL usuario es: ", user.name)
     return jsonify({"message":"Estás en una ruta protegida", "name":user.name}), 200
