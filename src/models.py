@@ -25,7 +25,7 @@ class User(db.Model):
 
 class People(db.Model):
     id = db.Column(db.Integer, primary_key=True)    
-    height = db.Column(db.String(20), unique=False, nullable=False)
+    height = db.Column(db.Float(20), unique=False, nullable=False)
     mass = db.Column(db.String(20), unique=False, nullable=False)    
     hair_color = db.Column(db.String(20), unique=False, nullable=False)
     skin_color = db.Column(db.String(20), unique=False, nullable=False)
@@ -119,7 +119,7 @@ class Vehicle(db.Model):
             "length": self.length,
             "crew": self.crew,
             "passengers": self.passengers,
-            "max_atmosphering_speed": self.max_atmosphering_speed,
+            "max_atmosphering_speed": self.max_atmosphTokenBlockedListering_speed,
             "hyperdrive_rating": self.hyperdrive_rating,
             "mglt": self.mglt,
             "cargo_capacity": self.cargo_capacity,
@@ -182,6 +182,7 @@ class TokenBlockedList(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(250), unique=True, nullable=False)
     email = db.Column(db.String(50), unique=False)
+    #puede ser un ForeignKey de la tabla Usuarios
     created_at = db.Column(db.DateTime, nullable=False)
 
     def serialize(self):
