@@ -25,7 +25,7 @@ class User(db.Model):
 
 class People(db.Model):
     id = db.Column(db.Integer, primary_key=True)    
-    height = db.Column(db.Float(20), unique=False, nullable=False)
+    height = db.Column(db.Float, unique=False, nullable=False)
     mass = db.Column(db.String(20), unique=False, nullable=False)    
     hair_color = db.Column(db.String(20), unique=False, nullable=False)
     skin_color = db.Column(db.String(20), unique=False, nullable=False)

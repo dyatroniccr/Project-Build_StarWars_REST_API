@@ -199,7 +199,7 @@ def add_favorite_planet():
 
 @app.route('/add-favorite/vehicle', methods=['POST'])
 def add_favorite_vehicle():
-    body = request.get_json()
+    body = request.get_json()        
     user_id = body["user_id"]
     vehicle_id = body["vehicle_id"]
 
@@ -420,15 +420,18 @@ def delete_specific_vehicle():
     return jsonify("Vehiculo borrado"), 200
 
 @app.route('/favorites', methods=['POST'])
+@jwt_required()   #Es una ruta protegida porque tengo el decorador
 def list_favorites():
     body = request.get_json()
-    user_id = body["user_id"]
+    #user_id = body["user_id"]
+    user_id = get_jwt_identity()
+
     if not user_id:
         raise APIException('Faltan datos', status_code=404)
 
     user = User.query.get(user_id)
     if not user:
-        raise APIException('Usuario no encontrado', status_code=404)
+        raise APIException('User Not Found', status_code=404)
     
     user_favorites_people = FavoritePeople.query.filter_by(user_id=user_id).all()
     user_favorites_final_people = list(map(lambda item: item.serialize(), user_favorites_people))
@@ -441,7 +444,8 @@ def list_favorites():
 
     user_favorites_final = user_favorites_final_people + user_favorites_final_planets + user_favorites_final_vehicles
 
-    return jsonify(user_favorites_final), 200
+    return jsonify( {
+        "all_Favorites:" : user_favorites_final }), 200
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -472,13 +476,13 @@ def protected():
     current_user = get_jwt_identity()
     user = User.query.get(current_user)
 
-    jti = get_jwt()["jti"] #Identificador del JWT (es más corto) 
-    token = TokenBlockedList.query.filter_by(token-jti).first() #reuso la función de verificacion de token"""
+    #jti = get_jwt()["jti"] #Identificador del JWT (es más corto) 
+    #token = TokenBlockedList.query.filter_by(token-jti).first() #reuso la función de verificacion de token"""
     #token_P = verificacionToken(get_jwt()["jti"])
-    print(token)
+    #print(token)
     
-    if token:
-       raise APIException('Token está en lista negra', status_code=404)
+    #if token:
+    #   raise APIException('Token está en lista negra', status_code=404)
 
     print("EL usuario es: ", user.name)
     return jsonify({"message":"Estás en una ruta protegida", "name":user.name}), 200
