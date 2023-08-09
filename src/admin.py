@@ -22,4 +22,4 @@ def setup_admin(app):
 
     # You can duplicate that line to add mew models
     # admin.add_view(ModelView(YourModelName, db.session))
-    admin.add_link(MenuLink(name='Home Page Backend', url='/'))
+    #admin.add_link(MenuLink(name='Home Page Backend', url='/'))
