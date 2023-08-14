@@ -147,6 +147,7 @@ def edit_user():
     return jsonify(user.serialize()), 200
 
 @app.route('/add-favorite/people', methods=['POST'])
+@jwt_required()
 def add_favorite_people():
     body = request.get_json()
     user_id = body["user_id"]
@@ -172,6 +173,7 @@ def add_favorite_people():
     return jsonify(favorite_people.serialize()), 200
 
 @app.route('/add-favorite/planet', methods=['POST'])
+@jwt_required()
 def add_favorite_planet():
     body = request.get_json()
     user_id = body["user_id"]
@@ -198,6 +200,7 @@ def add_favorite_planet():
 
 
 @app.route('/add-favorite/vehicle', methods=['POST'])
+@jwt_required()
 def add_favorite_vehicle():
     body = request.get_json()        
     user_id = body["user_id"]
